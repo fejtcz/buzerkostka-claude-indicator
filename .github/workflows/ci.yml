@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        # The project claims python >= 3.8 and no dependencies, so prove
+        # both on the oldest and newest supported interpreters.
+        os: [ubuntu-latest, macos-latest]
+        python: ["3.8", "3.13"]
+        exclude:
+          - os: macos-latest
+            python: "3.8"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install pytest
+      - run: pytest -q
+
+  no-dependencies:
+    # The whole value proposition is "clone it and it runs". Guard it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Import every module with an empty sys.path additions
+        run: |
+          python3 - <<'PY'
+          import subprocess, sys
+          modules = ["cli", "client", "colors", "config", "daemon",
+                     "engine", "hooks", "mqtt", "states", "transport",
+                     "watch"]
+          for name in modules:
+              subprocess.run([sys.executable, "-c",
+                              "import sys; sys.path.insert(0, 'src');"
+                              " import buzerkostka.%s" % name], check=True)
+          print("all modules import with stdlib only")
+          PY
+      - name: Smoke test the CLI straight out of the checkout
+        run: |
+          export BUZERKOSTKA_CONFIG=/tmp/c.json
+          export BUZERKOSTKA_STATE_DIR=/tmp/bkstate
+          echo '{"transport":"null"}' > /tmp/c.json
+          ./bin/buzerkostka --version
+          ./bin/buzerkostka install --print-only > /dev/null
+          ./bin/buzerkostka daemon
+          echo '{"session_id":"ci","cwd":"/tmp"}' | ./bin/buzerkostka-event --event prompt-submit
+          sleep 1
+          ./bin/buzerkostka status --json
+          ./bin/buzerkostka status --json | python3 -c \
+            "import json,sys; assert json.load(sys.stdin)['active_state'] == 'working'"
+          ./bin/buzerkostka stop
+      - name: Bundled plugin hooks must match the generator
+        run: |
+          python3 -c "
+          import json, sys
+          sys.path.insert(0, 'src')
+          from buzerkostka.hooks import plugin_hooks
+          with open('hooks/hooks.json') as f:
+              on_disk = json.load(f)
+          assert on_disk == plugin_hooks('standard'), \
+              'hooks/hooks.json is stale -- regenerate it'
+          print('hooks/hooks.json is up to date')
+          "

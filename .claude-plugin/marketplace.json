@@ -1,0 +1,17 @@
+{
+  "name": "mafy",
+  "owner": {
+    "name": "MaFy",
+    "email": "martin@fejt.cz"
+  },
+  "plugins": [
+    {
+      "name": "buzerkostka-indicator",
+      "source": {
+        "source": "github",
+        "repo": "fejtcz/buzerkostka-claude-indicator"
+      },
+      "description": "Physical RGB status light for Claude Code, driven by a Pajenicko BUZERKOSTKA over MQTT."
+    }
+  ]
+}

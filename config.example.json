@@ -1,0 +1,136 @@
+{
+  "transport": "mqtt",
+  "mqtt": {
+    "host": "192.168.1.10",
+    "port": 1883,
+    "username": "",
+    "password": "",
+    "client_id": "",
+    "keepalive": 30,
+    "tls": false,
+    "tls_insecure": false,
+    "ca_certs": "",
+    "timeout": 5.0,
+    "retain": false
+  },
+  "http": {
+    "host": "",
+    "port": 80,
+    "timeout": 2.0
+  },
+  "device": {
+    "topic": "devices/kostka/A0B1C2D3E4F5",
+    "password": "",
+    "channel_order": "rgb"
+  },
+  "render": {
+    "fps": 20,
+    "brightness": 1.0,
+    "gamma": 2.0,
+    "min_interval_ms": 40,
+    "resend_interval_s": 30,
+    "off_on_exit": true
+  },
+  "daemon": {
+    "session_ttl_s": 28800,
+    "exit_after_idle_s": 0,
+    "log_max_bytes": 262144,
+    "watch_transcript": true,
+    "watch_interval_s": 1.0
+  },
+  "enabled": true,
+  "states": {
+    "off": {
+      "color": "#000000",
+      "effect": "off",
+      "priority": 0
+    },
+    "idle": {
+      "color": "#00C8C8",
+      "effect": "breathe",
+      "period": 4.0,
+      "min": 0.08,
+      "max": 0.6,
+      "priority": 10
+    },
+    "compacting": {
+      "color": "#FFC000",
+      "effect": "breathe",
+      "period": 1.5,
+      "min": 0.15,
+      "max": 1.0,
+      "priority": 20,
+      "timeout": 600
+    },
+    "working": {
+      "color": "#FF0000",
+      "effect": "solid",
+      "level": 1.0,
+      "priority": 30,
+      "timeout": 900
+    },
+    "done": {
+      "color": "#00FF40",
+      "effect": "flash",
+      "count": 1,
+      "period": 0.6,
+      "duty": 0.7,
+      "priority": 50
+    },
+    "attention": {
+      "color": "#FF8000",
+      "effect": "blink",
+      "period": 1.0,
+      "duty": 0.5,
+      "priority": 70,
+      "timeout": 1800
+    },
+    "permission": {
+      "color": "#FF8000",
+      "effect": "blink",
+      "period": 0.5,
+      "duty": 0.5,
+      "priority": 80,
+      "timeout": 1800
+    },
+    "error": {
+      "color": "#FF00FF",
+      "effect": "flash",
+      "count": 4,
+      "period": 0.25,
+      "duty": 0.5,
+      "priority": 90
+    }
+  },
+  "events": {
+    "session-start": "idle",
+    "prompt-submit": "working",
+    "tool-start": "working",
+    "tool-end": "working",
+    "tool-error": {
+      "state": "error"
+    },
+    "permission": "permission",
+    "permission-denied": "working",
+    "idle-nudge": "attention",
+    "elicitation": "permission",
+    "interrupted": {
+      "state": "idle",
+      "base": "idle"
+    },
+    "stop": {
+      "state": "done",
+      "base": "idle"
+    },
+    "stop-error": {
+      "state": "error",
+      "base": "idle"
+    },
+    "compact-start": "compacting",
+    "compact-end": "working",
+    "subagent-start": "working",
+    "subagent-stop": "working",
+    "teammate-idle": "attention",
+    "session-end": "off"
+  }
+}

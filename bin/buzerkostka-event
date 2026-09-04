@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+"""Hook entry point -- this is what Claude Code runs.
+
+Kept separate from ``bin/buzerkostka`` so it imports only
+``buzerkostka.client`` and never pays for argparse or the CLI module.
+Exits 0 unconditionally; a status light must never be able to break a
+session.
+"""
+
+import os
+import sys
+
+sys.path.insert(
+    0,
+    os.path.join(
+        os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "src"
+    ),
+)
+
+try:
+    from buzerkostka.client import main
+except Exception:  # pragma: no cover - broken checkout, stay silent
+    sys.exit(0)
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except Exception:
+        if os.environ.get("BUZERKOSTKA_DEBUG"):
+            raise
+        sys.exit(0)

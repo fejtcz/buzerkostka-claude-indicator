@@ -1,0 +1,16 @@
+{
+  "name": "buzerkostka-indicator",
+  "displayName": "Buzerkostka status light",
+  "version": "1.0.0",
+  "description": "Turns a Pajenicko BUZERKOSTKA (ESP32 + WS2812 over MQTT) into a physical status light for Claude Code: breathing teal when waiting for a prompt, red while working, blinking orange when it needs your confirmation.",
+  "author": {
+    "name": "MaFy",
+    "email": "martin@fejt.cz",
+    "url": "https://github.com/fejtcz"
+  },
+  "homepage": "https://github.com/fejtcz/buzerkostka-claude-indicator",
+  "repository": "https://github.com/fejtcz/buzerkostka-claude-indicator",
+  "license": "GPL-3.0-or-later",
+  "keywords": ["buzerkostka", "mqtt", "esp32", "led", "status", "hardware", "iot"],
+  "hooks": "./hooks/hooks.json"
+}

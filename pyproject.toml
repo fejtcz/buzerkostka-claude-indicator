@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "buzerkostka-claude-indicator"
+version = "1.0.0"
+description = "Drive a Pajenicko BUZERKOSTKA RGB cube as a physical status light for Claude Code"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "GPL-3.0-or-later" }
+authors = [{ name = "MaFy", email = "martin@fejt.cz" }]
+keywords = ["claude-code", "buzerkostka", "mqtt", "esp32", "ws2812", "status-light"]
+classifiers = [
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Topic :: Home Automation",
+]
+# Intentionally empty: the MQTT client is implemented in the stdlib so a
+# fresh clone works with nothing but `python3`.
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/fejtcz/buzerkostka-claude-indicator"
+Issues = "https://github.com/fejtcz/buzerkostka-claude-indicator/issues"
+Hardware = "https://pajenicko.cz/zaciname-buzerkostka"
+
+[project.scripts]
+buzerkostka = "buzerkostka.cli:main"
+buzerkostka-event = "buzerkostka.client:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

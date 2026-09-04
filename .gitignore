@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Never commit a real config -- it holds broker credentials.
+config.json
+*.buzerkostka-backup-*
+
+.DS_Store
+.idea/
+.vscode/
+.claude/settings.local.json
