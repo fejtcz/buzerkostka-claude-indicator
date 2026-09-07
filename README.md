@@ -8,17 +8,17 @@ Glance at the cube instead of the terminal:
 
 | State | Light | Meaning |
 | --- | --- | --- |
-| `idle` | teal, slowly breathing | waiting for your prompt |
-| `working` | solid red | Claude is doing something |
-| `permission` | orange, blinking 2 Hz | **waiting for your confirmation** |
-| `attention` | orange, blinking 1 Hz | idle nudge — Claude wants input |
-| `done` | one green flash | turn finished |
-| `error` | magenta, 4 fast blinks | a tool call or the turn failed |
-| `compacting` | amber, pulsing | context is being compacted |
+| `idle` | green, slowly breathing | waiting for your prompt |
+| `working` | solid red | Claude is doing something (including compaction) |
+| `permission` | orange, blinking 2 Hz | **waiting for your answer** — a permission prompt, a question, an idle nudge |
 | *(no sessions)* | dark | nothing running |
 
-Everything above is configurable — colours, effects, timings, and which
-Claude Code event maps to which state.
+Three colours, on purpose: it is the same language as the
+[macOS notch indicator](../macos-claude-indicator), so the cube and the
+screen always agree. Everything above is configurable — colours, effects,
+timings, and which Claude Code event maps to which state — and richer
+palettes (a green flash on finish, magenta on error) are a few lines of
+JSON away, see [Customising](#customising).
 
 > 🇨🇿 **[Česká verze návodu →](README.cs.md)**
 
@@ -269,13 +269,29 @@ Edit `~/.config/buzerkostka/config.json`, then `buzerkostka reload`.
 } }
 ```
 
+**Want more colours?** Add states and point events at them. This gives a
+single green flash when a turn finishes and four magenta blinks on failure,
+each returning to whatever the session was doing underneath:
+
+```json
+{ "states": {
+    "done":  { "color": "#00FF40", "effect": "flash", "count": 1, "period": 0.6, "duty": 0.7, "priority": 50 },
+    "error": { "color": "#FF00FF", "effect": "flash", "count": 4, "period": 0.25, "duty": 0.5, "priority": 90 }
+  },
+  "events": {
+    "stop":       { "state": "done",  "base": "idle" },
+    "stop-error": { "state": "error", "base": "idle" },
+    "tool-error": { "state": "error" }
+} }
+```
+
 **Effects available:** `solid`, `off`, `breathe`, `blink`, `flash`
 (transient — plays `count` times, then reveals the state underneath),
 `rainbow`.
 
 **Priorities** decide which session wins when several disagree. Higher is
-more urgent; the shipped order is
-`off 0 < idle 10 < compacting 20 < working 30 < done 50 < attention 70 < permission 80 < error 90`.
+more urgent; the shipped order is `off 0 < idle 10 < working 30 < permission 80`,
+leaving room for your own states in between.
 
 ## Commands
 

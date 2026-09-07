@@ -8,17 +8,17 @@ Místo koukání do terminálu se podíváš na kostku:
 
 | Stav | Světlo | Význam |
 | --- | --- | --- |
-| `idle` | tyrkysová, pomalu dýchá | čekám na tvůj prompt |
-| `working` | plná červená | Claude něco dělá |
-| `permission` | oranžová, bliká 2 Hz | **čeká se na tvoje potvrzení** |
-| `attention` | oranžová, bliká 1 Hz | Claude po tobě chce vstup |
-| `done` | jeden zelený blik | tah dokončen |
-| `error` | magenta, 4 rychlé bliky | selhal nástroj nebo tah |
-| `compacting` | jantarová, pulzuje | zhušťuje se kontext |
+| `idle` | zelená, pomalu dýchá | čekám na tvůj prompt |
+| `working` | plná červená | Claude něco dělá (včetně kompakce kontextu) |
+| `permission` | oranžová, bliká 2 Hz | **čeká se na tvoji odpověď** — oprávnění, dotaz, idle upozornění |
 | *(žádná session)* | tma | nic neběží |
 
-Všechno se dá překonfigurovat — barvy, efekty, časování i to, který
-Claude Code event odpovídá kterému stavu.
+Tři barvy, a to schválně: je to stejný jazyk jako
+[indikátor v notchi pro macOS](../macos-claude-indicator), takže kostka
+a obrazovka vždycky říkají totéž. Všechno se dá překonfigurovat — barvy,
+efekty, časování i to, který Claude Code event odpovídá kterému stavu — a
+bohatší paleta (zelený blik po dokončení, magenta při chybě) je otázka
+pár řádků JSONu, viz [Přizpůsobení](#přizpůsobení).
 
 > 🇬🇧 **[English version →](README.md)**
 
@@ -266,13 +266,29 @@ Uprav `~/.config/buzerkostka/config.json` a dej `buzerkostka reload`.
 } }
 ```
 
+**Chceš víc barev?** Přidej stavy a nasměruj na ně eventy. Tohle dá jeden
+zelený blik po dokončení tahu a čtyři magentové bliky při selhání, vždy s
+návratem k tomu, co session dělala pod tím:
+
+```json
+{ "states": {
+    "done":  { "color": "#00FF40", "effect": "flash", "count": 1, "period": 0.6, "duty": 0.7, "priority": 50 },
+    "error": { "color": "#FF00FF", "effect": "flash", "count": 4, "period": 0.25, "duty": 0.5, "priority": 90 }
+  },
+  "events": {
+    "stop":       { "state": "done",  "base": "idle" },
+    "stop-error": { "state": "error", "base": "idle" },
+    "tool-error": { "state": "error" }
+} }
+```
+
 **Dostupné efekty:** `solid`, `off`, `breathe`, `blink`, `flash`
 (přechodný — přehraje se `count`krát a pak odkryje stav pod sebou),
 `rainbow`.
 
 **Priority** rozhodují, která session vyhraje, když se neshodnou. Vyšší je
-naléhavější; ve výchozím nastavení
-`off 0 < idle 10 < compacting 20 < working 30 < done 50 < attention 70 < permission 80 < error 90`.
+naléhavější; ve výchozím nastavení `off 0 < idle 10 < working 30 < permission 80`,
+mezi tím je místo pro tvoje vlastní stavy.
 
 ## Příkazy
 

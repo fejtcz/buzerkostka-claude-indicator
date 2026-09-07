@@ -112,24 +112,20 @@ DEFAULTS = {
     # priority: when several sessions disagree, highest wins
     # timeout: seconds before this state decays to `idle` (safety net for
     #          a Claude Code process that dies without a SessionEnd hook)
+    #
+    # The shipped palette is the same three-colour language as the
+    # macos-claude-indicator notch glow, so one glance means the same
+    # thing on the cube and on the screen: green breathing = waiting for
+    # you, solid red = Claude is busy, orange blinking = needs your answer.
     "states": {
         "off": {"color": "#000000", "effect": "off", "priority": 0},
         "idle": {
-            "color": "#00C8C8",
+            "color": "#00FF40",
             "effect": "breathe",
             "period": 4.0,
             "min": 0.08,
             "max": 0.60,
             "priority": 10,
-        },
-        "compacting": {
-            "color": "#FFC000",
-            "effect": "breathe",
-            "period": 1.5,
-            "min": 0.15,
-            "max": 1.0,
-            "priority": 20,
-            "timeout": 600,
         },
         "working": {
             "color": "#FF0000",
@@ -138,22 +134,6 @@ DEFAULTS = {
             "priority": 30,
             "timeout": 900,
         },
-        "done": {
-            "color": "#00FF40",
-            "effect": "flash",
-            "count": 1,
-            "period": 0.6,
-            "duty": 0.7,
-            "priority": 50,
-        },
-        "attention": {
-            "color": "#FF8000",
-            "effect": "blink",
-            "period": 1.0,
-            "duty": 0.5,
-            "priority": 70,
-            "timeout": 1800,
-        },
         "permission": {
             "color": "#FF8000",
             "effect": "blink",
@@ -161,14 +141,6 @@ DEFAULTS = {
             "duty": 0.5,
             "priority": 80,
             "timeout": 1800,
-        },
-        "error": {
-            "color": "#FF00FF",
-            "effect": "flash",
-            "count": 4,
-            "period": 0.25,
-            "duty": 0.5,
-            "priority": 90,
         },
     },
     # --- hook event -> state ----------------------------------------
@@ -182,19 +154,19 @@ DEFAULTS = {
         "prompt-submit": "working",
         "tool-start": "working",
         "tool-end": "working",
-        "tool-error": {"state": "error"},
+        "tool-error": "working",
         "permission": "permission",
         "permission-denied": "working",
-        "idle-nudge": "attention",
+        "idle-nudge": "permission",
         "elicitation": "permission",
-        "interrupted": {"state": "idle", "base": "idle"},
-        "stop": {"state": "done", "base": "idle"},
-        "stop-error": {"state": "error", "base": "idle"},
-        "compact-start": "compacting",
+        "interrupted": "idle",
+        "stop": "idle",
+        "stop-error": "idle",
+        "compact-start": "working",
         "compact-end": "working",
         "subagent-start": "working",
         "subagent-stop": "working",
-        "teammate-idle": "attention",
+        "teammate-idle": "permission",
         "session-end": "off",
     },
 }

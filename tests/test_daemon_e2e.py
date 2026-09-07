@@ -116,8 +116,7 @@ def test_the_full_turn_cycle(daemon):
     wait_for_state(daemon, "working")
 
     hook(daemon, "stop")
-    wait_for_state(daemon, "done")
-    wait_for_state(daemon, "idle")  # the flash expires on its own
+    wait_for_state(daemon, "idle")
 
     hook(daemon, "session-end")
     deadline = time.time() + 5

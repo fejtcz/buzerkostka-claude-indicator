@@ -2,7 +2,7 @@
   "name": "buzerkostka-indicator",
   "displayName": "Buzerkostka status light",
   "version": "1.0.0",
-  "description": "Turns a Pajenicko BUZERKOSTKA (ESP32 + WS2812 over MQTT) into a physical status light for Claude Code: breathing teal when waiting for a prompt, red while working, blinking orange when it needs your confirmation.",
+  "description": "Turns a Pajenicko BUZERKOSTKA (ESP32 + WS2812 over MQTT) into a physical status light for Claude Code: breathing green when waiting for a prompt, red while working, blinking orange when it needs your confirmation.",
   "author": {
     "name": "MaFy",
     "email": "martin@fejt.cz",

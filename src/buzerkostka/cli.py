@@ -416,11 +416,12 @@ def cmd_demo(args) -> int:
         print(fail(str(exc)))
         return 1
 
-    names = args.states or [
-        name for name in ("idle", "working", "permission", "attention", "done",
-                          "error", "compacting")
-        if name in states
-    ]
+    # Shipped states first, then anything the user added in config.json.
+    shipped = ("idle", "working", "permission")
+    names = args.states or (
+        [name for name in shipped if name in states]
+        + sorted(name for name in states if name not in shipped and name != "off")
+    )
     print("target %s\n" % transport.describe())
     try:
         with daemon_paused():

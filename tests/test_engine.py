@@ -23,7 +23,7 @@ def test_a_fresh_engine_is_dark(engine):
     assert state_of(engine) is None
 
 
-def test_the_happy_path_walks_idle_working_done_idle(engine):
+def test_the_happy_path_walks_idle_working_idle(engine):
     engine.apply_event("session-start", session_id="s1")
     assert state_of(engine) == "idle"
 
@@ -31,6 +31,22 @@ def test_the_happy_path_walks_idle_working_done_idle(engine):
     assert state_of(engine) == "working"
     assert engine.frame() == (255, 0, 0)
 
+    # The shipped palette mirrors the macOS notch indicator: a finished
+    # turn simply goes back to green breathing, no flash in between.
+    engine.apply_event("stop", session_id="s1")
+    assert state_of(engine) == "idle"
+
+
+def test_a_transient_overlay_reveals_the_base_that_the_event_set():
+    config = copy.deepcopy(DEFAULTS)
+    config["states"]["done"] = {
+        "color": "#00FF40", "effect": "flash", "count": 1, "period": 0.6, "duty": 0.7,
+        "priority": 50,
+    }
+    config["events"]["stop"] = {"state": "done", "base": "idle"}
+    engine = Engine(config)
+
+    engine.apply_event("prompt-submit", session_id="s1")
     engine.apply_event("stop", session_id="s1")
     assert state_of(engine) == "done"
 
@@ -51,7 +67,20 @@ def test_permission_outranks_work_across_sessions(engine):
     assert state_of(engine) == "working"
 
 
-def test_tool_error_flashes_then_returns_to_the_base_state(engine):
+def test_tool_error_keeps_working_by_default(engine):
+    engine.apply_event("prompt-submit", session_id="s1")
+    engine.apply_event("tool-error", session_id="s1")
+    assert state_of(engine) == "working", "a failed tool call is still Claude working"
+
+
+def test_a_transient_error_overlay_returns_to_the_base_state():
+    config = copy.deepcopy(DEFAULTS)
+    config["states"]["error"] = {
+        "color": "#FF00FF", "effect": "flash", "count": 4, "period": 0.25, "priority": 90,
+    }
+    config["events"]["tool-error"] = {"state": "error"}
+    engine = Engine(config)
+
     engine.apply_event("prompt-submit", session_id="s1")
     engine.apply_event("tool-error", session_id="s1")
     assert state_of(engine) == "error"
@@ -158,7 +187,7 @@ def test_sleep_hint_is_long_for_static_states_and_short_for_animated():
 
 def test_events_can_be_remapped_in_config():
     config = copy.deepcopy(DEFAULTS)
-    config["events"]["prompt-submit"] = "attention"
+    config["events"]["prompt-submit"] = "permission"
     engine = Engine(config)
     engine.apply_event("prompt-submit", session_id="s1")
-    assert state_of(engine) == "attention"
+    assert state_of(engine) == "permission"
